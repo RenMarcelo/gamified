@@ -51,6 +51,7 @@ function save_highscore() {
 let width = 1280
 let height = 720
 let world_opacity = 100
+let sound
 
 let time = 0
 let color_time = 0
@@ -66,10 +67,17 @@ let disabled = false
 let recovering = false
 
 let enemies
-let lined
-let lined_opacity = 0
-let superEnemy
 let super_spawned = false
+
+let lines
+let supers
+let super_chances = 0.75
+let hell = ""
+let countdown = ""
+
+function preload() {
+    sound = loadSound('Nightcore  Psycho [NV].mp3')
+}
 
 function setup() {
 	new Canvas(width, height);
@@ -87,6 +95,7 @@ function setup() {
     enemies.y = random(0, height)
     enemies.color = 'red'
     enemies.speed = 0
+    enemies.layer = 2
     
     var enemy = new enemies.Sprite()
     enemy.speed = 15
@@ -97,7 +106,7 @@ function setup() {
     player.color = 'white'
     player.stroke = 'blue'
     player.drag = 0.25
-    player.layer = 2
+    player.layer = 5
 }
 
 function draw() {
@@ -105,47 +114,71 @@ function draw() {
 	background(color(color_time, color_time, color_time, world_opacity));
     count_score()
     fill('white')
+    textSize(16)
     text("FPS:" + round(frameRate()), 5, 15)
-    text("Score: " + round(player_score), 5, 30)
+    text("Time: " + time, 5, 30)
+    text("Score: " + round(player_score), 5, 45)
     text("HP: " + player_hp, (width / 2) - 23, 45)
+    textSize(400)
+    fill("black")
+    text(hell, (width/2) - 450, (height/2) + 150)
+    fill("white")
+    text(countdown, (width/2) - 110, (height/2) + 150)
 
     for (let i = 0; i < enemies.length; i ++) {
-        enemy_move(enemies[i], enemies[i].speed)
+        enemy_move(enemies[i])
     }
 
     if (super_spawned) {
-        lined.y = superEnemy.y
-        lined.color = color(255, 0, 0, lined_opacity)
-        if (superEnemy.x > width) {
-            lined_opacity = map(superEnemy.x, width + (width * 4), width, 200, 0)
-        } else {
-            lined_opacity = 0
-        }
-        if (superEnemy.x < (0 - (width * 2))) {
-            if (Math.random() < 0.5) {
-                superEnemy.y = player.y
-            } else {
-                superEnemy.y = random(0, height)
-            }
-            superEnemy.x = width + (width * 4)
-            superEnemy.direction = 180
+        for (let i = 0; i < supers.length; i++) {
+            supers_move(supers[i], lines[i])
         }
     }
-
+    
 	player_move()
     player_constraints()
+
+    enemy_spawn()
 }
 
-function enemy_move(enemy, speed) {
+function supers_move(superEnemy, lined) {
+    lined.y = superEnemy.y
+    lined.color = color(255, 0, 0, lined.opacity)
+    if (superEnemy.x > width) {
+        lined.opacity = map(superEnemy.x, width + (width * 4), width, 200, 0)
+    } else {
+        lined.opacity = 0
+    }
+    if (superEnemy.x < (0 - (width * 2))) {
+        var chance = Math.random()
+        if (chance < (super_chances / 3)) {
+            superEnemy.y = player.y + random(-(superEnemy.h / 2), superEnemy.h)
+        } else if (chance < super_chances) {
+            superEnemy.y = player.y + random(-(superEnemy.h / 2), superEnemy.h / 2)
+        } else {
+            superEnemy.y = random(0, height)
+        }
+        superEnemy.x = width + (width * 4)
+        superEnemy.direction = 180
+    }
+}
+
+
+function enemy_move(enemy) {
     if (enemy.x < 0 - enemy.radius) {
         if (Math.random() <= 0.25) {
-            enemy.y = player.y
+            enemy.y = player.y + random(-enemy.radius, enemy.radius)
         } else {
             enemy.y = random(0, height)
         }
         enemy.x = width + enemy.radius + player.radius + 100
         enemy.speed += 0.01
         enemy.direction = 180
+    }
+    if (enemy.y < 0 - enemy.radius) {
+        enemy.y = height + enemy.radius
+    } else if (enemy.y > height + enemy.radius) {
+        enemy.y = 0 - enemy.radius
     }
 }
 
@@ -170,7 +203,7 @@ function player_move() {
         }
     }
     if (super_spawned) {
-        if(player.collides(enemies) || player.overlaps(superEnemy)) {
+        if(player.collides(enemies) || player.overlaps(supers)) {
             disable_player()
         }
     } else {
@@ -230,8 +263,10 @@ function player_constraints() {
 
 function count_score() {
     time = round(frameCount / 60)
-    player_score = round(time * score_multiplier)
+    player_score = round(time * (1 + score_multiplier))
+}
 
+function enemy_spawn() {
     if (time == 5 && enemies.length < 2) {
         var enemy = new enemies.Sprite()
         enemy.d = 100
@@ -268,6 +303,11 @@ function count_score() {
         enemy.speed = 15
         score_multiplier += 0.8
     }
+    if (time == 32) {
+        if (!(sound.isPlaying())){
+            sound.play()
+        }
+    }
     if (time == 35 && enemies.length < 8) {
         var enemy = new enemies.Sprite()
         enemy.d = 100
@@ -280,22 +320,98 @@ function count_score() {
         enemy.speed = 15
         score_multiplier += 1.5
 
-        lined = new Sprite()
-        lined.h = 35
-        lined.w = width * 4
-        lined.collider = "n"
-        lined.color = color(255, 0, 0, lined_opacity)
-        lined.layer = 1
+        lines = new Group()
+        lines.opacity = 0
+        lines.h = 35
+        lines.w = width * 4
+        lines.collider = "n"
+        lines.color = color(255, 0, 0, lines.opacity)
+        lines.layer = 1
 
-        superEnemy = new Sprite()
-        superEnemy.x = width + (width * 4)
-        superEnemy.direction = 180
-        superEnemy.h = 35
-        superEnemy.w = 100
-        superEnemy.speed = 100
-        superEnemy.collider = "n"
-        superEnemy.color = color('yellow')
+        supers = new Group()
+        supers.x = width + (width * 4)
+        supers.direction = 180
+        supers.h = 35
+        supers.w = 100
+        supers.speed = 100
+        supers.collider = "n"
+        supers.color = color('yellow')
+        supers.layer = 2
+        
+        var lined = new lines.Sprite()
+        var superEnemy = new supers.Sprite()
         super_spawned = true
-        superEnemy.layer = 2
+    }
+
+    if (time == 50 && supers.length < 2) {
+        super_chances = 1
+        enemies.speed = 0
+        var lined = new lines.Sprite()
+        var superEnemy = new supers.Sprite()
+        superEnemy.y = player.y
+        lined.y = superEnemy.y
+    }
+    if (time == 52 && supers.length < 3) {
+        var lined = new lines.Sprite()
+        var superEnemy = new supers.Sprite()
+        superEnemy.y = player.y
+        lined.y = superEnemy.y
+    }
+    if (time == 54 && supers.length < 4) {
+        var lined = new lines.Sprite()
+        var superEnemy = new supers.Sprite()
+        superEnemy.y = player.y
+        lined.y = superEnemy.y
+    }
+    if (time == 56 && supers.length < 5) {
+        var lined = new lines.Sprite()
+        var superEnemy = new supers.Sprite()
+        superEnemy.y = player.y
+        lined.y = superEnemy.y
+    }
+    if (time == 58 && supers.length < 6) {
+        var lined = new lines.Sprite()
+        var superEnemy = new supers.Sprite()
+        superEnemy.y = player.y
+        lined.y = superEnemy.y
+    }
+    if (time == 60 && supers.length < 7) {
+        var lined = new lines.Sprite()
+        var superEnemy = new supers.Sprite()
+        superEnemy.y = player.y
+        lined.y = superEnemy.y
+    }
+    if (time == 62 && supers.length < 8) {
+        var lined = new lines.Sprite()
+        var superEnemy = new supers.Sprite()
+        superEnemy.y = player.y
+        lined.y = superEnemy.y
+    }
+    if (time == 64 && supers.length < 9) {
+        var lined = new lines.Sprite()
+        var superEnemy = new supers.Sprite()
+        superEnemy.y = player.y
+        lined.y = superEnemy.y
+    }
+    if (time == 66) {
+        countdown = "3"
+    }
+    if (time == 67) {
+        countdown = "2"
+    }
+    if (time == 68) {
+        countdown = "1"
+    }
+    if (time == 69) {
+        countdown = "0"
+    }
+
+    if (time == 70) {
+        countdown = ""
+        enemies.forEach(enemy => {
+            enemy.speed = random(10, 25)
+        });
+        super_chances = 0.75
+        hell = "HELL"
     }
 }

@@ -63,8 +63,13 @@ let player_hp = 3
 let score_multiplier = 1
 let disabled_timer = 0
 let disabled = false
+let recovering = false
 
 let enemies
+let lined
+let lined_opacity = 0
+let superEnemy
+let super_spawned = false
 
 function setup() {
 	new Canvas(width, height);
@@ -77,6 +82,7 @@ function setup() {
 
     enemies = new Group()
     enemies.d = 50
+    enemies.direction = 180
     enemies.x = width + 500
     enemies.y = random(0, height)
     enemies.color = 'red'
@@ -91,6 +97,7 @@ function setup() {
     player.color = 'white'
     player.stroke = 'blue'
     player.drag = 0.25
+    player.layer = 2
 }
 
 function draw() {
@@ -106,26 +113,46 @@ function draw() {
         enemy_move(enemies[i], enemies[i].speed)
     }
 
+    if (super_spawned) {
+        lined.y = superEnemy.y
+        lined.color = color(255, 0, 0, lined_opacity)
+        if (superEnemy.x > width) {
+            lined_opacity = map(superEnemy.x, width + (width * 4), width, 200, 0)
+        } else {
+            lined_opacity = 0
+        }
+        if (superEnemy.x < (0 - (width * 2))) {
+            if (Math.random() < 0.5) {
+                superEnemy.y = player.y
+            } else {
+                superEnemy.y = random(0, height)
+            }
+            superEnemy.x = width + (width * 4)
+            superEnemy.direction = 180
+        }
+    }
+
 	player_move()
     player_constraints()
 }
 
 function enemy_move(enemy, speed) {
-    enemy.vel.x = -speed
     if (enemy.x < 0 - enemy.radius) {
-        if (Math.random() <= 0.1) {
+        if (Math.random() <= 0.25) {
             enemy.y = player.y
         } else {
             enemy.y = random(0, height)
         }
         enemy.x = width + enemy.radius + player.radius + 100
-        enemy.vel.y = 0
+        enemy.speed += 0.01
+        enemy.direction = 180
     }
 }
 
 function disable_player() {
     if (!disabled) {
         disabled = true
+        recovering = true
         player_hp -= 1
         background('red')
         player.color = color(255, 255, 255, 35)
@@ -142,12 +169,20 @@ function player_move() {
             saved = true
         }
     }
-
-    if(player.collides(enemies)) {
-        disable_player()
+    if (super_spawned) {
+        if(player.collides(enemies) || player.overlaps(superEnemy)) {
+            disable_player()
+        }
+    } else {
+        if(player.collides(enemies)) {
+            disable_player()
+        }
     }
 
     if (disabled) {
+        if ((time - disabled_timer) === 1) {
+            recovering = false
+        }
         if ((time - disabled_timer) === 2) {
             player.color = 'white'
             world.timeScale = 1
@@ -156,7 +191,7 @@ function player_move() {
         }
     }
 
-    if (!disabled) {
+    if (!recovering) {
         if (kb.pressing("w") || kb.pressing(UP_ARROW)) {
             player.vel.x = 0
             player.vel.y = 0
@@ -243,6 +278,24 @@ function count_score() {
         var enemy = new enemies.Sprite()
         enemy.d = 50
         enemy.speed = 15
-        score_multiplier += 1.25
+        score_multiplier += 1.5
+
+        lined = new Sprite()
+        lined.h = 35
+        lined.w = width * 4
+        lined.collider = "n"
+        lined.color = color(255, 0, 0, lined_opacity)
+        lined.layer = 1
+
+        superEnemy = new Sprite()
+        superEnemy.x = width + (width * 4)
+        superEnemy.direction = 180
+        superEnemy.h = 35
+        superEnemy.w = 100
+        superEnemy.speed = 100
+        superEnemy.collider = "n"
+        superEnemy.color = color('yellow')
+        super_spawned = true
+        superEnemy.layer = 2
     }
 }

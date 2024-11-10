@@ -1,0 +1,105 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: var(#f85f73);
+    -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.37);
+}
+
+#togglePassword {
+    cursor: pointer;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #f8b400, #f85f73);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+i {
+    font-size: 0.8rem;
+    color: #00000050;
+}
+
+li {
+    font-style: italic;
+    list-style: none;
+    font-size: 0.85rem;
+    color: rgb(0, 0, 0);
+    -webkit-text-stroke: 0.5px rgb(255, 0, 0);
+}
+
+h1 {
+    text-align: center;
+    color: #fff;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+form, main {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    padding-right: 39px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 350px;
+    text-align: center;
+}
+
+label {
+    font-size: 1.1rem;
+    color: #000000;
+    display: block;
+    margin-bottom: 15px;
+}
+
+input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    margin-top: 5px;
+    font-size: 1rem;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+button {
+    width: 105%;
+    padding: 10px;
+    background-color: #f85f73;
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #f8b400;
+    transform: scale(1.05);
+}
+
+a {
+    text-decoration: none;
+    color: #0064a7;
+    font-size: 1rem;
+    display: block;
+    margin-top: 10px;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #fff;
+}
+
+
+@media (max-width: 400px) {
+    form {
+        width: 90%;
+    }
+}

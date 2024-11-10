@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Sign Up</title>
+</head>
+<body>
+    <form action="/user_signup" method="POST" id="form">
+        <h1>Sign Up</h1>
+        <label for="email">Email: <input id="email" type="email" required></label><i>Email is used as Username</i><br><br>
+        <label for="new_password">Password: <input id="new_password" type="password" required></label>
+        <label for="confirm_password">Confirm Password: <input id="confirm_password" type="password" required></label>
+        <ul id="error_log"></ul><br>
+        <h4>User Details</h4>
+        <label for="first_name">First Name: <input id="first_name" type="text" required></label>
+        <label for="last_name">Last Name: <input id="last_name" type="text" required></label>
+        <label for="age">Age: <input id="age" type="number" min="1" max="120" required></label>
+        <ul id="user_error"></ul><br>
+        <button type="submit" id="submit_button">Sign Up</button>
+        <a href="index.html">Back To Login</a>
+    </form>
+    <br>
+    <script src="signup.js"></script>
+</body>
+</html>

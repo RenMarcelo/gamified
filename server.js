@@ -307,11 +307,7 @@ app.post('/reset-password', async (req, res) => {
 })
 
 app.post('/forgot-password', async (req, res) => {
-    const { email } = req.body;
-    if (!email) {
-        return res.status(400).send('Email is required')
-    }
-    
+    const {email} = req.body;
     try {
         const resetToken = generateRandomString(32)
 
@@ -333,12 +329,12 @@ app.post('/forgot-password', async (req, res) => {
                 html: `<p>Your password reset token is:</p><h3>${resetToken}</h3>`,
             };
             sgMail.send(msg).then(() => {
-                res.status(400).send("Email sent successfully.")    
+                res.json({success: true, message: "Email sent!"})   
             })
         } else {
-            res.status(400).send("Email is not registered.")
+            res.json({success: false, message: "Email is not registered"})
         }
     } catch (error) {
-        res.status(500).send('Error finding or updating token ' + error)
+        res.json({success: false, message: "Error in server" + error})
     }
 });

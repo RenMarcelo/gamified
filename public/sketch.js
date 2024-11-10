@@ -233,4 +233,16 @@ function count_score() {
         enemy.speed = 15
         score_multiplier += 0.8
     }
+    if (time == 35 && enemies.length < 8) {
+        var enemy = new enemies.Sprite()
+        enemy.d = 100
+        enemy.speed = 10
+        score_multiplier += 1
+    }
+    if (time == 40 && enemies.length < 9) {
+        var enemy = new enemies.Sprite()
+        enemy.d = 50
+        enemy.speed = 15
+        score_multiplier += 1.25
+    }
 }

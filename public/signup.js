@@ -1,6 +1,7 @@
 let email = document.getElementById("email")
 let password = document.getElementById("new_password")
 let confirm_password = document.getElementById("confirm_password")
+let show_button = document.getElementById("show")
 
 let first_name = document.getElementById("first_name")
 let last_name = document.getElementById("last_name")
@@ -37,6 +38,12 @@ form.addEventListener("submit", (event) => {
     }
 })
 
+function show() {
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password'
+    password.setAttribute('type', type)
+    confirm_password.setAttribute('type', type)
+    show_button.textContent = type === 'password' ? "Show" : "Unshow"
+}
 
 function validate() {
     valid = true

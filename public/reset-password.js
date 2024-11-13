@@ -21,3 +21,10 @@ document.getElementById("form").addEventListener('submit', function(event) {
         alert('An error occurred.');
     });
 });
+
+function show() {
+    const passwordInput = document.getElementById("new-password")
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password'
+    passwordInput.setAttribute('type', type)
+    document.getElementById("show").textContent = type === 'password' ? 'Show' : 'Unshow'
+}
